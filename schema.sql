@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS politicians;
+DROP TABLE IF EXISTS politician;
 
-CREATE TABLE politicians
+CREATE TABLE politician
 (
   id SERIAL PRIMARY KEY,
   created_at BIGINT,

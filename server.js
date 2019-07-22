@@ -12,11 +12,13 @@ require('dotenv').config();
 
 // Application Setup
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 app.use(cors());
 
 // Database Setup
+
+
 const client = new pg.Client(process.env.DATABASE_URL);
 client.connect();
 client.on('error', err => console.error(err));
@@ -53,7 +55,7 @@ function handleError(err, res) {
 
 // Models;
 function Politician(res) {
-  this.tableName = 'politicians';
+  this.tableName = 'politician';
   this.created_at = Date.now();
   this.candidate_id = res.candidate.candidate_id;
   this.candidate_name = res.candidate.name;
@@ -83,7 +85,7 @@ function Politician(res) {
 
 Politician.prototype = {
   save: function() {
-    const SQL = `INSERT INTO politicians (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING RETURNING id;`;
+    const SQL = `INSERT INTO politician (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING RETURNING id;`;
     const values = [this.created_at, this.candidate_id, this.candidate_name, this.party, this.size0, this.size200, this.size500, this.size1k, this.size2k];
 
     return client.query(SQL, values).then(result => {
@@ -96,7 +98,7 @@ Politician.prototype = {
 function getPolitician(request, response) {
   const candidate_name = `Bernie Sanders`;
 
-  let candidateUrl = `https://api.open.fec.gov/v1/candidates/search/?office=P&page=1&sort=name&sort_hide_null=false&per_page=20&sort_null_only=false&api_key=${process.env.FEC_KEY}&name=${candidate_name}&sort_nulls_last=false`;
+  let candidateUrl = `https://api.open.fec.gov/v1/candidates/search/?office=P&page=1&sort=name&sort_hide_null=false&per_page=20&sort_null_only=false&api_key=KmJ4gTUeGUgZZeUrj9Hdr2GIgRZMqQzz4NALZXvD&name=${candidate_name}&sort_nulls_last=false`;
 
   return superagent
     .get(candidateUrl)
