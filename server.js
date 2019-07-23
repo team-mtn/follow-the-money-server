@@ -47,11 +47,11 @@ function Politician(info) {
   this.candidate_id = info.candidate[0];
   this.candidate_name = info.candidate[1];
   this.party = info.candidate[2];
-  this.size0 = info.financials[0] && info.financials[0].total || null;
-  this.size200 = info.financials[1] && info.financials[1].total || null;
-  this.size500 = info.financials[2] && info.financials[2].total || null;
-  this.size1k = info.financials[3] && info.financials[3].total || null;
-  this.size2k = info.financials[4] && info.financials[4].total || null;
+  this.size0 = info.financials[0] && info.financials[0].total || 0;
+  this.size200 = info.financials[1] && info.financials[1].total || 0;
+  this.size500 = info.financials[2] && info.financials[2].total || 0;
+  this.size1k = info.financials[3] && info.financials[3].total || 0;
+  this.size2k = info.financials[4] && info.financials[4].total || 0;
 }
 
 function NewsArticle(news){
