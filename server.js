@@ -40,7 +40,7 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-// Model;
+// Model
 function Politician(info) {
   this.tableName = 'politician';
   this.created_at = Date.now();
@@ -52,6 +52,15 @@ function Politician(info) {
   this.size500 = info.financials[2] && info.financials[2].total || null;
   this.size1k = info.financials[3] && info.financials[3].total || null;
   this.size2k = info.financials[4] && info.financials[4].total || null;
+}
+
+function NewsArticle(news){
+  this.source = news.source.name,
+  this.author = news.author,
+  this.title = news.title,
+  this.description = news.description,
+  this.url = news.url,
+  this.urlToImage = news.urlToImage
 }
 
 Politician.lookup = politician => {
@@ -79,7 +88,6 @@ Politician.prototype = {
     });
   }
 };
-
 
 function getPoliticians(req, res) {
   Politician.lookup ({
@@ -140,15 +148,6 @@ function getOne(req, res){
       res.send(result.rows)
     })
     .catch(error => handleError(error));
-}
-
-function NewsArticle(news){
-  this.source = news.source.name,
-  this.author = news.author,
-  this.title = news.title,
-  this.description = news.description,
-  this.url = news.url,
-  this.urlToImage = news.urlToImage
 }
 
 function getNews(req, res){
