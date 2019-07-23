@@ -23,7 +23,7 @@ client.on('error', err => console.error(err));
 
 // API Routes
 app.get('/politician', getOne);
-app.get('/allpoliticians', getAllPoliticians);
+app.get('/allpoliticians', getPoliticians);
 
 
 app.use('*', (request, response) => {
@@ -80,11 +80,11 @@ Politician.prototype = {
 };
 
 
-function getAllPoliticians(req, res) {
+function getPoliticians(req, res) {
   Politician.lookup ({
     tableName: 'politician',
     cacheHit: function (result){
-      if( (Date.now() - result.rows[0].created_at) > 10000 ){
+      if( (Date.now() - result.rows[0].created_at) > 1157400000000 ){
         console.log('how old-----------', result.rows[0].created_at);
         const SQL = `DELETE FROM politician;`;
         client.query(SQL)
