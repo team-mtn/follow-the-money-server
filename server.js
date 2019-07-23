@@ -46,11 +46,11 @@ function Politician(res) {
   this.candidate_id = res.candidate.candidate_id;
   this.candidate_name = res.candidate.name;
   this.party = res.candidate.party_full;
-  this.size0 = res.financials[0].size;
-  this.size200 = res.financials[1].size;
-  this.size500 = res.financials[2].size;
-  this.size1k = res.financials[3].size;
-  this.size2k = res.financials[4].size;
+  this.size0 = res.financials[0].total;
+  this.size200 = res.financials[1].total;
+  this.size500 = res.financials[2].total;
+  this.size1k = res.financials[3].total;
+  this.size2k = res.financials[4].total;
 }
 
 // TODO: test functionality
@@ -102,6 +102,7 @@ function getPolitician(req, res) {
         .then(candidateResult => {
           superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${candidateResult.body.results[0].candidate_id}&election_full=false`).then(financialResult => {
             const result = { candidate: candidateResult.body.results[0], financials: financialResult.body.results };
+            console.log(result)
             const politician = new Politician(result);
             politician.save().then(politician => res.send(politician));
           });
