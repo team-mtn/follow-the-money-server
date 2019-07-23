@@ -36,7 +36,7 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 // Error handler
 function handleError(err, res) {
   console.error(err);
-  if (res) res.status(500).send('Sorry, something went wrong');
+  // if (res) res.status(500).send('Sorry, something went wrong');
 }
 
 // Model;
@@ -46,11 +46,11 @@ function Politician(info) {
   this.candidate_id = info.candidate[0];
   this.candidate_name = info.candidate[1];
   this.party = info.candidate[2];
-  this.size0 = info.financials[0].total;
-  this.size200 = info.financials[1].total;
-  this.size500 = info.financials[2].total;
-  this.size1k = info.financials[3].total;
-  this.size2k = info.financials[4].total;
+  this.size0 = info.financials[0] && info.financials[0].total || null;
+  this.size200 = info.financials[1] && info.financials[1].total || null;
+  this.size500 = info.financials[2] && info.financials[2].total || null;
+  this.size1k = info.financials[3] && info.financials[3].total || null;
+  this.size2k = info.financials[4] && info.financials[4].total || null;
 }
 
 Politician.lookup = politician => {
@@ -69,7 +69,7 @@ Politician.lookup = politician => {
 
 Politician.prototype = {
   save: function() {
-    const SQL = `INSERT INTO politician (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING;`;
+    const SQL = `INSERT INTO politician (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING RETURNING *;`;
     const values = [this.created_at, this.candidate_id, this.candidate_name, this.party, this.size0, this.size200, this.size500, this.size1k, this.size2k];
 
     return client.query(SQL, values).then(result => {
@@ -84,12 +84,11 @@ function getAllPoliticians(req, res) {
   Politician.lookup ({
     tableName: 'politician',
     cacheHit: function (result){
-      if( (Date.now() - result.rows[0].created_at) > 1157400000000 ){
+      if( (Date.now() - result.rows[0].created_at) > 10000 ){
         console.log('how old-----------', result.rows[0].created_at);
-        const SQL = `DELETE * FROM politician;`;
+        const SQL = `DELETE FROM politician;`;
         client.query(SQL)
           .then(() => {
-            console.log('Im here in the query lookup');
             this.cacheMiss();
           })
       } else {
@@ -98,22 +97,22 @@ function getAllPoliticians(req, res) {
     },
   
     cacheMiss: function () {
-      const url = `https://api.open.fec.gov/v1/candidates/?per_page=100&sort=name&candidate_status=C&year=2020&sort_hide_null=false&api_key=${process.env.FEC_KEY}&sort_null_only=false&office=P&election_year=2020&page=1&sort_nulls_last=false`;
+      const url = `https://api.open.fec.gov/v1/candidates/?per_page=60&sort=name&candidate_status=C&year=2020&sort_hide_null=false&api_key=${process.env.FEC_KEY}&sort_null_only=false&office=P&election_year=2020&page=1&sort_nulls_last=false`;
       return superagent.get(url)
         .then(result => {
           const candidateArr = result.body.results.map(e => {
             return [e.candidate_id, e.name, e.party_full];  
           })
           
-          candidateArr.forEach(id => {
-            superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${id[0]}&election_full=false`)
+          const arr = candidateArr.map(id => {
+            return superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${id[0]}&election_full=false`)
             .then(financialResult => {
               const allInfo = {candidate: id, financials: financialResult.body.results}
               const politician = new Politician(allInfo);
               politician.save();
             })
-            .then(getAll(req, res))
           })
+          return Promise.all(arr).then(getAll(req, res))
         })
         .catch(error => handleError(error, res))
     }
