@@ -24,6 +24,7 @@ client.on('error', err => console.error(err));
 // API Routes
 app.get('/politician', getOne);
 app.get('/allpoliticians', getPoliticians);
+app.get('/news', getNews);
 
 
 app.use('*', (request, response) => {
