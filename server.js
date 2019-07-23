@@ -95,7 +95,7 @@ function getPolitician(req, res) {
     },
     
     cacheMiss: function () {
-      let candidateUrl = `https://api.open.fec.gov/v1/candidates/search/?office=P&page=1&sort=name&sort_hide_null=false&per_page=20&sort_null_only=false&api_key=KmJ4gTUeGUgZZeUrj9Hdr2GIgRZMqQzz4NALZXvD&name=${candidate_name}&sort_nulls_last=false`;
+      let candidateUrl = `https://api.open.fec.gov/v1/candidates/search/?office=P&page=1&sort=name&sort_hide_null=false&per_page=20&sort_null_only=false&api_key=${process.env.FEC_KEY}&name=${candidate_name}&sort_nulls_last=false`;
     
       return superagent
         .get(candidateUrl)
