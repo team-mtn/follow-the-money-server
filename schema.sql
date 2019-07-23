@@ -7,10 +7,10 @@ CREATE TABLE politician
   candidate_id VARCHAR(255),
   candidate_name VARCHAR(255),
   party VARCHAR(255),
-  size0 INTEGER,
-  size200 BIGINT,
-  size500 BIGINT,
-  size1k BIGINT,
-  size2k BIGINT
+  size0 DECIMAL,
+  size200 DECIMAL,
+  size500 DECIMAL,
+  size1k DECIMAL,
+  size2k DECIMAL
 );
 
