@@ -154,6 +154,7 @@ function NewsArticle(news){
 function getNews(req, res){
   superagent.get(`https://newsapi.org/v2/everything?q=${req.query.name}&from=2019-07-23&sortBy=popularity&apiKey=${process.env.NEWS_KEY}`)
   .then( apiResponse => {
+    console.log(apiResponse.body.articles);
     let allArticles = [];
     apiResponse.body.articles.map(article => {
       allArticles.push(new NewsArticle(article));
