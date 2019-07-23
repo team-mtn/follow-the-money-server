@@ -36,7 +36,7 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 // Error handler
 function handleError(err, res) {
   console.error(err);
-  // if (res) res.status(500).send('Sorry, something went wrong');
+  if (res) res.status(500).send('Sorry, something went wrong');
 }
 
 // Model;
