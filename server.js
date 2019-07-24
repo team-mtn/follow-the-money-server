@@ -80,8 +80,8 @@ Politician.lookup = politician => {
 
 Politician.prototype = {
   save: function() {
-    const SQL = `INSERT INTO politician (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT DO NOTHING RETURNING *;`;
-    const values = [this.created_at, this.candidate_id, this.candidate_name, this.party, this.size0, this.size200, this.size500, this.size1k, this.size2k];
+    const SQL = `INSERT INTO politician (created_at, candidate_id, candidate_name, party, size0, size200, size500, size1k, size2k, totalReceipt) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT DO NOTHING RETURNING *;`;
+    const values = [this.created_at, this.candidate_id, this.candidate_name, this.party, this.size0, this.size200, this.size500, this.size1k, this.size2k, this.totalReceipt];
 
     return client.query(SQL, values).then(result => {
       this.id = result.rows[0].id;
@@ -94,11 +94,12 @@ function getPoliticians(req, res) {
   Politician.lookup ({
     tableName: 'politician',
     cacheHit: function (result){
-      if( (Date.now() - result.rows[0].created_at) > 1000 ){ // 1157400000000
+      if( (Date.now() - result.rows[0].created_at) > 1157400000000 ){ 
         console.log('how old-----------', result.rows[0].created_at);
         const SQL = `DELETE FROM politician;`;
         client.query(SQL)
           .then(() => {
+            console.log('im in here')
             this.cacheMiss();
           })
       } else {
@@ -113,18 +114,15 @@ function getPoliticians(req, res) {
           const candidateArr = result.body.results.map(c => {
             return [c.candidate_id, c.name, c.party_full, c.receipts];  
           })
-          
           const arr = candidateArr.map(candidate => {
             return superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${candidate[0]}&election_full=false`)
             .then(financialResult => {
               const allInfo = { candidate: candidate, financials: financialResult.body.results }
-              // console.log(allInfo.candidate)
               const politician = new Politician(allInfo);
-              console.log(politician)
               politician.save();
             })
           })
-          return Promise.all(arr).then(getAll(req, res));
+          return Promise.all(arr).then(getAll(req, res))
         })
         .catch(error => handleError(error, res))
     }
