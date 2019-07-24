@@ -118,8 +118,9 @@ function getPoliticians(req, res) {
             return superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${candidate[0]}&election_full=false`)
             .then(financialResult => {
               const allInfo = { candidate: candidate, financials: financialResult.body.results }
-              console.log(allInfo.receipt)
+              // console.log(allInfo.candidate)
               const politician = new Politician(allInfo);
+              console.log(politician)
               politician.save();
             })
           })
