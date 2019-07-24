@@ -11,6 +11,7 @@ CREATE TABLE politician
   size200 DECIMAL,
   size500 DECIMAL,
   size1k DECIMAL,
-  size2k DECIMAL
+  size2k DECIMAL,
+  totalReceipt DECIMAL
 );
 
