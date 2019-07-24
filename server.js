@@ -9,10 +9,9 @@ const cors = require('cors');
 const OAuth = require('oauth').OAuth;
 const qs = require('qs');
 
-
 // Load environment variables from .env file
 require('dotenv').config();
-require('twitter-node-client').Twitter; // originally 'var Twitter =' 
+require('twitter-node-client').Twitter;
 
 // Application Setup
 const app = express();
@@ -48,7 +47,10 @@ function handleError(err, res) {
 }
 
 const success = function (data) {
-  return data;
+  // return data[0].map(d => {
+  //   tweetArr.push(new Tweet(d));
+  // })
+  console.log('DATA [%s]', data)
 };
 
 // Models >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -82,7 +84,7 @@ function Twitter() {
   this.consumerSecret = process.env.CONSUMER_SECRET;
   this.accessToken = process.env.ACCESS_TOKEN;
   this.accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-  // this.callBackUrl = 'https://follow-the-money-mtn.herokuapp.com/callback'; // could be wrong, need to deploy front-end first
+  this.callBackUrl = 'https://localhost:8000/twitter/callback'; // could be wrong, need to deploy front-end first
   this.baseUrl = 'https://api.twitter.com/1.1';
   this.oauth = new OAuth(
       'https://api.twitter.com/oauth/request_token',
@@ -259,17 +261,24 @@ Twitter.prototype.doRequest = function (url, error, success) {
   this.oauth.get(url, this.accessToken, this.accessTokenSecret, function (err, body, response) {
       console.log('URL [%s]', url);
       if (!err && response.statusCode == 200) {
-          success(body, response);
+          success(body);
       } else {
           handleError(err, response, body);
       }
   });
 };
 
+function Tweet(t){
+  this.created_at = t.created_at;
+  this.text = t.text;
+  this.name = t.name;
+  this.image_url = t.image_url;
+}
+
 // Twitter API call
 function getTweets(req, res) {
-  twitter.getSearch({'q':'from @realDonaldTrump','count': 2}, handleError, success)
-  res.send('wheres my tweet');
+  const tweets = twitter.getSearch({'q':'from @realDonaldTrump','count': 1}, handleError, success)
+  // res.send(tweets);
 }
 
 
