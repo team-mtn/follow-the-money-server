@@ -52,6 +52,7 @@ function Politician(info) {
   this.size500 = info.financials[2] && info.financials[2].total || 0;
   this.size1k = info.financials[3] && info.financials[3].total || 0;
   this.size2k = info.financials[4] && info.financials[4].total || 0;
+  this.totalReceipt = info.candidate[3];
 }
 
 function NewsArticle(news){
@@ -93,7 +94,7 @@ function getPoliticians(req, res) {
   Politician.lookup ({
     tableName: 'politician',
     cacheHit: function (result){
-      if( (Date.now() - result.rows[0].created_at) > 1157400000000 ){
+      if( (Date.now() - result.rows[0].created_at) > 1000 ){ // 1157400000000
         console.log('how old-----------', result.rows[0].created_at);
         const SQL = `DELETE FROM politician;`;
         client.query(SQL)
@@ -104,24 +105,25 @@ function getPoliticians(req, res) {
         res.send(result.rows);
       }
     },
-  
+
     cacheMiss: function () {
-      const url = `https://api.open.fec.gov/v1/candidates/?per_page=60&sort=name&candidate_status=C&year=2020&sort_hide_null=false&api_key=${process.env.FEC_KEY}&sort_null_only=false&office=P&election_year=2020&page=1&sort_nulls_last=false`;
+      const url = `https://api.open.fec.gov/v1/candidates/totals/?election_full=true&per_page=60&cycle=2020&election_year=2020&sort=-receipts&api_key=${process.env.FEC_KEY}&page=1&sort_hide_null=false&sort_nulls_last=true&office=P&sort_null_only=false`;
       return superagent.get(url)
         .then(result => {
-          const candidateArr = result.body.results.map(e => {
-            return [e.candidate_id, e.name, e.party_full];  
+          const candidateArr = result.body.results.map(c => {
+            return [c.candidate_id, c.name, c.party_full, c.receipts];  
           })
           
-          const arr = candidateArr.map(id => {
-            return superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${id[0]}&election_full=false`)
+          const arr = candidateArr.map(candidate => {
+            return superagent.get(`https://api.open.fec.gov/v1/schedules/schedule_a/by_size/by_candidate/?sort_nulls_last=false&page=1&sort_null_only=false&sort_hide_null=false&per_page=20&api_key=${process.env.FEC_KEY}&cycle=2020&candidate_id=${candidate[0]}&election_full=false`)
             .then(financialResult => {
-              const allInfo = {candidate: id, financials: financialResult.body.results}
+              const allInfo = { candidate: candidate, financials: financialResult.body.results }
+              console.log(allInfo.receipt)
               const politician = new Politician(allInfo);
               politician.save();
             })
           })
-          return Promise.all(arr).then(getAll(req, res))
+          return Promise.all(arr).then(getAll(req, res));
         })
         .catch(error => handleError(error, res))
     }
