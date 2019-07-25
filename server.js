@@ -46,12 +46,13 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-const success = function (data) {
-  // return data[0].map(d => {
-  //   tweetArr.push(new Tweet(d));
-  // })
-  console.log('DATA [%s]', data)
+const success = function (res) {
+  return data => {
+    res.send(data);
+  }
 };
+
+
 
 // Models >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -78,13 +79,13 @@ function NewsArticle(news){
   this.urlToImage = news.urlToImage
 }
 
-// TODO: callback url
+
 function Twitter() {
   this.consumerKey = process.env.CONSUMER_KEY;
   this.consumerSecret = process.env.CONSUMER_SECRET;
   this.accessToken = process.env.ACCESS_TOKEN;
   this.accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-  this.callBackUrl = 'https://localhost:8000/twitter/callback'; // could be wrong, need to deploy front-end first
+  // this.callBackUrl = 'https://localhost:8000/twitter/callback/'; 
   this.baseUrl = 'https://api.twitter.com/1.1';
   this.oauth = new OAuth(
       'https://api.twitter.com/oauth/request_token',
@@ -200,7 +201,6 @@ function getNews(req, res){
   })
 }
 
-
 // TWITTER >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const twitter = new Twitter();
 
@@ -266,19 +266,12 @@ Twitter.prototype.doRequest = function (url, error, success) {
           handleError(err, response, body);
       }
   });
-};
 
-function Tweet(t){
-  this.created_at = t.created_at;
-  this.text = t.text;
-  this.name = t.name;
-  this.image_url = t.image_url;
-}
+};
 
 // Twitter API call
 function getTweets(req, res) {
-  const tweets = twitter.getSearch({'q':'from @realDonaldTrump','count': 1}, handleError, success)
-  // res.send(tweets);
+  twitter.getSearch({'q':'from @realDonaldTrump','count': 1}, handleError, success(res))
 }
 
 
