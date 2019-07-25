@@ -41,11 +41,9 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // Callback functions >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-function handleError(err, res, body) {
+function handleError(err, res) {
   console.error('ERROR [%s]', err);
-  console.error('body [%s]', body);
-
-  // if (res) res.status(500).send('Sorry, something went wrong');
+  if (res) res.status(500).send('Sorry, something went wrong');
 }
 
 const success = function (res) {
@@ -263,10 +261,6 @@ Twitter.prototype.doRequest = function (url, error, success) {
 
   this.oauth.get(url, this.accessToken, this.accessTokenSecret, (err, body, response) => {
       console.log('URL [%s]', url);
-      console.log('response.statusCode', response.statusCode)
-      console.log('this access token', this.accessToken)
-      console.log('this access token secret', this.accessTokenSecret)
-
       if (!err && response.statusCode == 200) {
           success(body);
       } else {
