@@ -48,11 +48,12 @@ function handleError(err, res) {
 
 const success = function (res) {
   return data => {
-    res.send(data);
+    let tweetArr = JSON.parse(data).statuses.map(tweet => {
+      return [tweet.created_at, tweet.text, tweet.user.name, tweet.user.screen_name, tweet.user.description, tweet.user.url, tweet.user.profile_image_url];
+    })
+    res.send(tweetArr);
   }
 };
-
-
 
 // Models >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -79,7 +80,6 @@ function NewsArticle(news){
   this.urlToImage = news.urlToImage
 }
 
-
 function Twitter() {
   this.consumerKey = process.env.CONSUMER_KEY;
   this.consumerSecret = process.env.CONSUMER_SECRET;
@@ -98,7 +98,7 @@ function Twitter() {
   );
 }
 
-// POLITICIAN/FEC >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// FEC >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Politician.lookup = politician => {
   const SQL = `SELECT * FROM politician;`;
@@ -202,6 +202,7 @@ function getNews(req, res){
 }
 
 // TWITTER >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Methods from this reference: https://github.com/BoyCook/TwitterJSClient
 const twitter = new Twitter();
 
 Twitter.prototype.getOAuthRequestToken = function (next) {
@@ -269,10 +270,7 @@ Twitter.prototype.doRequest = function (url, error, success) {
 
 };
 
-// Twitter API call
 function getTweets(req, res) {
-  twitter.getSearch({'q':'from @realDonaldTrump','count': 1}, handleError, success(res))
+  twitter.getSearch({'q':'from:realDonaldTrump OR from:BetoORourke OR from:KamalaHarris OR from:JoeBiden OR from:PeteButtigieg OR from:BernieSanders OR from:AndrewYang OR from:CoryBooker OR from:JayInslee OR from:SenWarren OR from:ewarren OR from:JulianCastro OR from:BilldeBlasio OR from:TulsiGabbard OR from:JohnDelaney OR from:SenGillibrand OR from:amyklobuchar OR from:RepSwalwell','count': 18, 'src': 'typed_query', 'f': 'live'}, handleError, success(res))
 }
-
-
 
