@@ -261,7 +261,7 @@ Twitter.prototype.doRequest = function (url, error, success) {
           .replace(/\)/g, "%29")
           .replace(/\*/g, "%2A");
 
-  this.oauth.get(url, this.accessToken, this.accessTokenSecret, function (err, body, response) {
+  this.oauth.get(url, this.accessToken, this.accessTokenSecret, (err, body, response) => {
       console.log('URL [%s]', url);
       console.log('response.statusCode', response.statusCode)
       console.log('this access token', this.accessToken)
