@@ -85,7 +85,7 @@ function Twitter() {
   this.consumerSecret = process.env.CONSUMER_SECRET;
   this.accessToken = process.env.ACCESS_TOKEN;
   this.accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-  // this.callBackUrl = 'https://localhost:8000/twitter/callback/'; 
+  this.callBackUrl = 'https://follow-the-money-server.herokuapp.com/twitter/callback/'; 
   this.baseUrl = 'https://api.twitter.com/1.1';
   this.oauth = new OAuth(
       'https://api.twitter.com/oauth/request_token',
