@@ -9,7 +9,7 @@ const cors = require('cors');
 const OAuth = require('oauth').OAuth;
 const qs = require('qs');
 
-// Load environment variables from .env file
+// Load environment variables
 require('dotenv').config();
 require('twitter-node-client').Twitter;
 
@@ -41,8 +41,10 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // Callback functions >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-function handleError(err, res) {
+function handleError(err, res, body) {
   console.error('ERROR [%s]', err);
+  console.error('body [%s]', body);
+
   // if (res) res.status(500).send('Sorry, something went wrong');
 }
 
@@ -262,6 +264,9 @@ Twitter.prototype.doRequest = function (url, error, success) {
   this.oauth.get(url, this.accessToken, this.accessTokenSecret, function (err, body, response) {
       console.log('URL [%s]', url);
       console.log('response.statusCode', response.statusCode)
+      console.log('this access token', this.accessToken)
+      console.log('this access token secret', this.accessTokenSecret)
+
       if (!err && response.statusCode == 200) {
           success(body);
       } else {
